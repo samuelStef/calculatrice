@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Statistics window</title>
+    </head>
+    <body>
+        <section>
+            <article>
+                <table>
+                    <tr>
+                        <td>Value</td>
+                        <td>Frequency</td>
+                    </tr>
+                    <tr style="background-color: #191919;">
+                        <td><input type="text" value="" autofocus></td>
+                        <td><input type="text" value=""></td>
+                    </tr>
+                </table>
+            </article>
+            <article style="flex: 0;">
+                <table>
+                    <tr>
+                        <td>Minimum</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Maximum</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Range</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Mean</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Median</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>First Quartile</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Third Quartile</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Standard derivation</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>Sum</td>
+                        <td></td>
+                    </tr>
+                </table>
+            </article>
+            <article style="flex: 0; flex-direction: column; align-items: center; justify-content: flex-start;">
+                <div style="display: flex; width: 100%; margin: 0px 0px 13px 0px;">
+                    <button onclick="infosProba()">Infos</button>
+                    <button onclick="exp()">Experience</button>
+                </div>
+                <table>
+                    <tr>
+                        <td>x</td>
+                        <td>p(X=x)</td>
+                    </tr>
+                </table>
+                <table style="height: 0px; overflow: hidden; transition: 300ms; display: block;">
+                    <tr>
+                        <td>E(x)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>V(x)</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>σ(x)</td>
+                        <td></td>
+                    </tr>
+                </table>
+            </article>
+            <article style="flex: 0; flex-direction: column; align-items: center; justify-content: flex-start;">
+                <div style="transition: 300ms; flex: 0; overflow: hidden;">
+                    <table>
+                        <tr>
+                            <td>Value</td>
+                            <td>Frequency</td>
+                        </tr>
+                    </table>
+                </div>
+                <div class="probaIndic" style="height: 0px; overflow: hidden; transition: 300ms;">
+                    <button onclick="fillResult()" title="Fille the main table with these results. [WARNING] - It will erase your previous data !">Fill the main Table</button>
+                </div>
+                <div class="probaIndic">
+                    <input type="text" value="" placeholder="Number of iterations" id="iterCount">
+                    <button onclick="makeTheTest()">Test</button>
+                </div>
+            </article>
+        </section>
+        <footer>
+            <div id="btnBackground"></div>
+            <button id="btnCalc">Table</button>
+            <button style="display: none; height: 0px; color: #111; background-color: #eee; overflow: hidden; position: relative; top: 2px;">Random Experiencies</button>
+        </footer>
+    </body>
+</html>
+<script>
+    const tbl = document.getElementsByTagName("table")[0];
+    for(var i = tbl.childNodes[1].childNodes.length-1; i >= 0; i--) {
+        if(tbl.childNodes[1].childNodes[i].nodeType == 3) {
+            tbl.childNodes[1].removeChild(tbl.childNodes[1].childNodes[i]);
+        }
+    }
+    window.setInterval(function() {
+        if(tbl.childNodes[1].childNodes[tbl.childNodes[1].childNodes.length-1].getElementsByTagName("td")[0].querySelector("input").value.length > 0) {
+            var tr = document.createElement("tr");
+            for(var i = 0; i < 2; i++) {
+                let td = document.createElement("td");
+                let input = document.createElement("input");
+                input.type = "text"; input.value = "";
+                td.appendChild(input);
+                tr.appendChild(td);
+            }
+            tbl.childNodes[1].appendChild(tr);
+            if(tbl.childNodes[1].childNodes.length % 2 == 1) {
+                tr.style.background = "#333";
+            } else {
+                tr.style.background = "#191919";
+            }
+        }
+    }, 200);
+    var whereAmI = [0, 1];
+    window.onkeydown = function(e) {
+        if(e.target.selectionStart > 0 && e.target.selectionStart < e.target.value.length) {
+            return true;
+        } else if(e.keyCode == 37) {
+            whereAmI[0] -= 1;
+            if(whereAmI[0] < 0) {
+                whereAmI[0] = 0;
+            }
+        } else if(e.keyCode == 39) {
+            whereAmI[0] += 1;
+            if(whereAmI[0] > 1) {
+                whereAmI[0] = 1;
+            } 
+        } else if(e.keyCode == 38) {
+            whereAmI[1] -= 1;
+            if(whereAmI[1] < 1) {
+                whereAmI[1] = 1;
+            }
+        } else if(e.keyCode == 40) {
+            whereAmI[1] += 1;
+            if(whereAmI[1] > tbl.childNodes[1].childNodes.length-1) {
+                whereAmI[1] = tbl.childNodes[1].childNodes.length-1;
+            }
+        } else {
+            return true;
+        }
+        if(!isDisplayedCalc) {
+            tbl.childNodes[1].childNodes[whereAmI[1]].getElementsByTagName("td")[whereAmI[0]].querySelector("input").focus();
+            if(whereAmI[0] == 1 && tbl.childNodes[1].childNodes[whereAmI[1]].getElementsByTagName("td")[whereAmI[0]].querySelector("input").value.length > 1) {
+                tbl.childNodes[1].childNodes[whereAmI[1]].getElementsByTagName("td")[whereAmI[0]].querySelector("input").selectionStart = 0; tbl.childNodes[1].childNodes[whereAmI[1]].getElementsByTagName("td")[whereAmI[0]].querySelector("input").selectionEnd = 0;
+            }
+        } else if(document.getElementsByTagName("table")[2].getElementsByTagName("tr").length > 1) {
+            document.getElementsByTagName("table")[2].getElementsByTagName("tr")[whereAmI[1]].getElementsByTagName("td")[1].querySelector("input").focus();
+        }
+    }
+    var isDisplayedCalc = false;
+    document.getElementById("btnCalc").addEventListener("click", function() {
+        if(isDisplayedExp) {
+            exp();
+            return true;
+        } else if(isDisplayedCalc) {
+            document.getElementsByTagName("article")[0].style.flex = "1";
+            document.getElementsByTagName("article")[1].style.flex = "0";
+            document.getElementsByTagName("article")[2].style.flex = "0";
+            isDisplayedCalc = false;
+            whereAmI = [0, 1];
+        } else {
+            removeEmptyTd();
+            goToCalculated();
+        }
+    });
+    function goToCalculated(how) {
+        for(var i = 0; i < document.getElementsByTagName("article").length; i++) {
+            if(i == 1) {
+                continue;
+            }
+            document.getElementsByTagName("article")[i].style.flex = "0";
+        }
+        document.getElementsByTagName("article")[1].style.flex = "1";
+        document.querySelector("footer").getElementsByTagName("button")[1].style.height = "0px";
+        document.querySelector("footer").querySelector("div").style.bottom = "0px";
+        isDisplayedCalc = true;
+        // Let's calculate the stats !
+        var valueFromTbl = [];
+        for(var i = 2; i < document.getElementsByTagName("table")[0].getElementsByTagName("td").length-2; i+=2) {
+            valueFromTbl[valueFromTbl.length] = [Number(document.getElementsByTagName("table")[0].getElementsByTagName("td")[i].querySelector("input").value), Number(document.getElementsByTagName("table")[0].getElementsByTagName("td")[i+1].querySelector("input").value)]
+        }
+        var minVal, maxVal, mean = 0, sum, value = [];
+        for(var i = 0; i < valueFromTbl.length; i++) {
+            if(i == 0) {
+                minVal = valueFromTbl[i][0];
+                maxVal = minVal;
+            } else {
+                if(valueFromTbl[i][0] < minVal) {
+                    minVal = valueFromTbl[i][0];
+                } else if(valueFromTbl[i][0] > maxVal) {
+                    maxVal = valueFromTbl[i][0];
+                }
+            }
+            for(var j = 0; j < valueFromTbl[i][1]; j++) {
+                value[value.length] = valueFromTbl[i][0];
+                mean += valueFromTbl[i][0];
+            }
+        }
+        if(typeof how != "undefined") {
+            value = how;
+        }
+        sum = mean;
+        mean /= value.length;
+        var mediane, firstQ, thirdQ;
+        if(value.length % 2 == 0) {
+            mediane = (value[value.length / 2] + value[(value.length / 2) + 1]) / 2;
+        } else {
+            mediane = value[(value.length / 2) + 0.5]
+        }
+        if(((value.length + 3) / 4).toString().indexOf(".") >= 0) {
+            firstQ = (value[Math.floor((value.length + 3) / 4)] + value[Math.ceil((3 * value.length + 3) / 4)]) / 2;
+        } else {
+            firstQ = value[(value.length + 3) / 4];
+        }
+        if(((3* value.length + 3) / 4).toString().indexOf(".") >= 0) {
+            thirdQ = (value[Math.floor((3 * value.length + 3) / 4)] + value[Math.ceil((3 * value.length + 3) / 4)]) / 2;
+        } else {
+            thirdQ = value[(3 * value.length + 3) / 4];
+        }
+        var standardDerivation = 0;
+        for(var i = 0; i < value.length; i++) {
+            standardDerivation += Math.pow(value[i]-mean, 2);
+        }
+        standardDerivation /= value.length;
+        standardDerivation = Math.sqrt(standardDerivation);
+        const allValue = [minVal, maxVal, maxVal-minVal, mean, mediane, firstQ, thirdQ, standardDerivation, sum];
+        for(var i = 0; i < allValue.length; i++) {
+            document.getElementsByTagName("article")[1].getElementsByTagName("tr")[i].getElementsByTagName("td")[1].textContent = allValue[i].toString();
+        }
+    }
+    document.getElementsByTagName("footer")[0].addEventListener("mouseover", function() {
+        if(isDisplayedCalc == false) {
+            document.querySelector("footer").getElementsByTagName("button")[1].style.display = "block";
+            window.setTimeout(function() {
+                document.querySelector("footer").getElementsByTagName("button")[1].style.height = "40px"; document.querySelector("footer").getElementsByTagName("button")[1].style.top = "0px";
+                document.querySelector("footer").querySelector("div").style.bottom = "40px";
+            }, 10);
+        }
+    });
+    document.getElementsByTagName("footer")[0].addEventListener("mouseleave", function() {
+        document.querySelector("footer").getElementsByTagName("button")[1].style.height = "0px"; document.querySelector("footer").getElementsByTagName("button")[1].style.top = "2px";
+        document.querySelector("footer").querySelector("div").style.bottom = "0px";
+        window.setTimeout(function() {
+            document.querySelector("footer").getElementsByTagName("button")[1].style.display = "none";
+        }, 300);
+    });
+    document.querySelector("footer").getElementsByTagName("button")[1].addEventListener("click", function() {
+        removeEmptyTd();
+        isDisplayedCalc = true;
+        document.getElementsByTagName("article")[0].style.flex = "0";
+        document.getElementsByTagName("article")[2].style.flex = "1";
+        document.querySelector("footer").getElementsByTagName("button")[1].style.height = "0px";
+        document.querySelector("footer").querySelector("div").style.bottom = "0px";
+        document.getElementsByTagName("table")[2].innerHTML = "<tr><td>x</td><td>p(X=x)</td></tr>";
+        for(var i = 1; i < document.getElementsByTagName("article")[0].getElementsByTagName("tr").length-1; i++) {
+            var tr = document.createElement("tr");
+            for(var j = 0; j < 2; j++) {
+                var td = document.createElement("td");
+                if(j == 0) {
+                    td.textContent = document.getElementsByTagName("article")[0].getElementsByTagName("tr")[i].getElementsByTagName("td")[0].querySelector("input").value;
+                } else {
+                    let input = document.createElement("input");
+                    input.type = "text"; input.value = "";
+                    td.appendChild(input);
+                }
+                tr.appendChild(td);
+            }
+            document.getElementsByTagName("table")[2].appendChild(tr);
+            if(document.getElementsByTagName("article")[2].getElementsByTagName("tr").length % 2 == 0) {
+                tr.style.background = "#222";
+            } else {
+                tr.style.background = "#333";
+            }
+        }
+        whereAmI = [0, 1];
+    });
+    function infosProba() {
+        valueFromTbl = [];
+        for(var i = 1; i < document.getElementsByTagName("table")[2].getElementsByTagName("tr").length; i++) {
+            valueFromTbl[valueFromTbl.length] = [Number(document.getElementsByTagName("table")[2].getElementsByTagName("tr")[i].getElementsByTagName("td")[0].textContent), Number(document.getElementsByTagName("table")[2].getElementsByTagName("tr")[i].getElementsByTagName("td")[1].querySelector("input").value)];
+        }
+        var ex = 0, vx = 0, sx = 0;
+        for(var i = 0; i < valueFromTbl.length; i++) {
+            ex += (valueFromTbl[i][0] * valueFromTbl[i][1]);
+        }
+        for(var i = 0; i < valueFromTbl.length; i++) {
+            vx += (valueFromTbl[i][1] * ((valueFromTbl[i][0] - ex) ** 2));
+        }
+        sx = Math.sqrt(vx);
+        value = [ex, vx, sx];
+        for(var i = 0; i < value.length; i++) {
+            document.getElementsByTagName("table")[3].getElementsByTagName("tr")[i].getElementsByTagName("td")[1].textContent = value[i].toString();
+        }
+        document.getElementsByTagName("table")[3].style.height = "200px";
+    }
+    var isDisplayedExp = false;
+    function exp() {
+        if(isDisplayedExp) {
+            document.getElementsByTagName("article")[2].style.flex = "1";
+            document.getElementsByTagName("article")[3].style.flex = "0";
+            isDisplayedExp = false;
+        } else {
+            document.getElementsByTagName("article")[2].style.flex = "0";
+            document.getElementsByTagName("article")[3].style.flex = "1";
+            isDisplayedExp = true;
+        }
+    }
+    function makeTheTest() {
+        if(document.getElementById("iterCount").value == "" || Number(document.getElementById("iterCount").value).toString() == "NaN") {
+            return false;
+        }
+        if(typeof tme != "undefined") {
+            try {
+                clearInterval(tmr);
+            } catch(e) {
+                console.warn("Trying to quit undefined timer !");
+            }
+        }
+        document.getElementsByTagName("table")[4].innerHTML = "<tr><td>Value</td><td>Frequency</td></tr>";
+        document.getElementsByTagName("table")[4].parentNode.style.flex = "1";
+        var value = []; proba = [0];
+        for(var i = 1; i < document.getElementsByTagName("table")[2].getElementsByTagName("tr").length; i++) {
+            value[value.length] = [Number(document.getElementsByTagName("table")[2].getElementsByTagName("tr")[i].getElementsByTagName("td")[0].textContent), 0];
+            proba[proba.length] = proba[proba.length-1] + Number(document.getElementsByTagName("table")[2].getElementsByTagName("tr")[i].getElementsByTagName("td")[1].querySelector("input").value);
+        }
+        for(var i = 0; i < value.length; i++) {
+            var tr = document.createElement("tr");
+            for(var j = 0; j < 2; j++) {
+                var td = document.createElement("td");
+                tr.appendChild(td);
+                if(j == 0) {
+                    td.textContent = value[i][0];
+                } else {
+                    td.textContent = "0";
+                }
+            }
+            document.getElementsByTagName("table")[4].appendChild(tr);
+            if(document.getElementsByTagName("table")[4].getElementsByTagName("tr").length % 2 == 0) { 
+                tr.style.background = "#222";
+            } else {
+                tr.style.background = "#333";
+            }
+        }
+        for(var i = 0; i < proba.length; i++) {
+            proba[i] = proba[i] * 10000;
+        }
+        var count = 1;
+        tmr = window.setInterval(function() {
+            var num = Math.floor(Math.random() * 10000);
+            for(var j = 1; j < proba.length; j++) {
+                if(num < proba[j]) {
+                    let elt = document.getElementsByTagName("table")[4].getElementsByTagName("tr")[j].getElementsByTagName("td")[1];
+                    elt.textContent = (value[j-1][1] + 1).toString();
+                    value[j-1][1] += 1;
+                    break;
+                }
+            }
+            if(count >= Number(document.getElementById("iterCount").value)) {
+                clearInterval(tmr);
+                document.getElementsByClassName("probaIndic")[0].style.height = "55px";
+            }
+            count++;
+        }, 1);
+    }
+    function fillResult() {
+        document.getElementsByClassName("probaIndic")[0].style.height = "0px";
+        for(var i = 1; i < document.getElementsByTagName("table")[0].getElementsByTagName("tr").length-1; i++) {
+            document.getElementsByTagName("table")[0].getElementsByTagName("tr")[i].getElementsByTagName("td")[1].querySelector("input").value = document.getElementsByTagName("table")[4].getElementsByTagName("tr")[i].getElementsByTagName("td")[1].textContent;
+        }
+        document.getElementsByTagName("article")[0].style.flex = "1";
+        document.getElementsByTagName("article")[3].style.flex = "0";
+        isDisplayedCalc = false, isDisplayedExp = false;
+        whereAmI = [0, 1];
+    }
+    function removeEmptyTd() {
+        for(var i = document.getElementsByTagName("table")[0].getElementsByTagName("tr").length-2; i >= 1; i--) {
+            if(document.getElementsByTagName("table")[0].getElementsByTagName("tr")[i].getElementsByTagName("td")[0].querySelector("input").value == "") {
+                console.log(i);
+                document.getElementsByTagName("table")[0].querySelector("tbody").removeChild(document.getElementsByTagName("table")[0].getElementsByTagName("tr")[i]);
+            } else if(document.getElementsByTagName("table")[0].getElementsByTagName("tr")[i].getElementsByTagName("td")[1].querySelector("input").value == "") {
+                document.getElementsByTagName("table")[0].getElementsByTagName("tr")[i].getElementsByTagName("td")[1].querySelector("input").value = "0";
+            }
+        }
+        for(var i = 1; i < document.getElementsByTagName("table")[0].getElementsByTagName("tr").length; i++) {
+            if(i % 2 == 1) {
+                document.getElementsByTagName("table")[0].getElementsByTagName("tr")[i].style.background = "#222";
+            } else {
+                document.getElementsByTagName("table")[0].getElementsByTagName("tr")[i].style.background = "#333";
+            }
+        }
+    }
+</script>
+<style>
+    body {
+        position: absolute;
+        top: 0px;
+        left: 0px;
+        width: 100%;
+        height: 100%;
+        padding: 0px;
+        margin: 0px;
+        overflow: hidden;
+        background-color: #111;
+        color: #eee;
+        font-family: sans-serif;
+        display: flex;
+        flex-direction: column;
+    }
+    section {
+        display: flex;
+        flex: 1;
+        overflow-y: auto;
+    }
+    section article {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        flex: 1;
+        width: 100%;
+        overflow: hidden;
+        overflow-y: auto;
+        transition: 300ms;
+    }
+    table {
+        border-collapse: collapse;
+        margin: 17px;
+    }
+    td {
+        width: 150px;
+        max-height: 30px;
+        padding: 3px;
+        overflow: hidden;
+        border: solid #111 1px;
+        text-align: right;
+        transition: 300ms;
+    }
+    td input {
+        background-color: rgba(0, 0, 0, 0);
+        color: white;
+        border-radius: 0px;
+        border: none;
+        text-align: right;
+        outline: none;
+    }
+    article button {
+        color: white;
+        background-color: #111;
+        border: none;
+        padding: 7px;
+        font-size: 18px;
+        font-weight: bold;
+        flex: 1;
+        cursor: pointer;
+        outline: none;
+        transition: 300ms;
+    }
+    article button:hover {
+        flex: 2;
+        background-color: #eee;
+        color: #111;
+    }
+    .probaIndic {
+        display: flex;
+        width: 100%;
+        justify-content: space-around;
+        padding: 7px;
+    }
+    .probaIndic input, .probaIndic button {
+        background-color: #111;
+        color: white;
+        border: solid white 2px;
+        border-radius: 0px;
+        font-size: 18px;
+        font-weight: bold;
+        font-family: monospace;
+        padding: 7px;
+        margin: 7px;
+        outline: none;
+        flex: 1;
+        transition: 300ms;
+    }
+    .probaIndic input {
+        flex: 2;
+    }
+    .probaIndic input:hover, .probaIndic button:hover {
+        background-color: white;
+        color: #111; 
+    }
+    footer {
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    footer button {
+        width: 100%;
+        height: 45px;
+        background-color: rgba(0, 0, 0, 0);
+        color: white;
+        font-size: 20px;
+        font-weight: bold;
+        border: none;
+        z-index: 2;
+        cursor: pointer;
+        outline: none;
+        transition: 300ms;
+    }
+    footer:hover button {
+        color: #111;
+    }
+    footer div {
+        width: 100%;
+        height: 0px;
+        background-color: #eee;
+        position: absolute;
+        bottom: 0px;
+        z-index: -1;
+        transition: 300ms;
+    }
+    footer:hover div {
+        height: 45px;
+    }
+</style>
