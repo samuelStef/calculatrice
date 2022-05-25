@@ -15,9 +15,13 @@ class Api:
     def statBtn(self):
         window2 = webview.create_window('Python Calculator', 'html/statistics.html', width=600, height=463, fullscreen=False, js_api=api)
         webview.start()
+    def probaBtn(self):
+        window2 = webview.create_window('Python Calculator', 'html/proba.html', width=600, height=463, fullscreen=False, js_api=api)
+        webview.start()
     def moreOptions(self):
         global window
         window.resize(1000, 600)
+        exec(open("html/asset/buf.py").read())
     def getConvertion(self):
         x = 0
 
