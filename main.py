@@ -21,7 +21,6 @@ class Api:
     def moreOptions(self):
         global window
         window.resize(1000, 600)
-        exec(open("html/asset/buf.py").read())
     def getConvertion(self):
         x = 0
 
