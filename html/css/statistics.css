@@ -1,0 +1,128 @@
+body {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: 100%;
+    height: 100%;
+    padding: 0px;
+    margin: 0px;
+    overflow: hidden;
+    background-color: #111;
+    color: #eee;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+section {
+    display: flex;
+    flex: 1;
+    overflow-y: auto;
+}
+section article {
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    flex: 1;
+    width: 100%;
+    overflow: hidden;
+    overflow-y: auto;
+    transition: 300ms;
+}
+table {
+    border-collapse: collapse;
+    margin: 17px;
+}
+td {
+    width: 150px;
+    max-height: 30px;
+    padding: 3px;
+    overflow: hidden;
+    border: solid #111 1px;
+    text-align: right;
+    transition: 300ms;
+}
+td input {
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    border-radius: 0px;
+    border: none;
+    text-align: right;
+    outline: none;
+}
+article button {
+    color: white;
+    background-color: #111;
+    border: none;
+    padding: 7px;
+    font-size: 18px;
+    font-weight: bold;
+    flex: 1;
+    cursor: pointer;
+    outline: none;
+    transition: 300ms;
+}
+article button:hover {
+    flex: 2;
+    background-color: #eee;
+    color: #111;
+}
+.probaIndic {
+    display: flex;
+    width: 100%;
+    justify-content: space-around;
+    padding: 7px;
+}
+.probaIndic input, .probaIndic button {
+    background-color: #111;
+    color: white;
+    border: solid white 2px;
+    border-radius: 0px;
+    font-size: 18px;
+    font-weight: bold;
+    font-family: monospace;
+    padding: 7px;
+    margin: 7px;
+    outline: none;
+    flex: 1;
+    transition: 300ms;
+}
+.probaIndic input {
+    flex: 2;
+}
+.probaIndic input:hover, .probaIndic button:hover {
+    background-color: white;
+    color: #111;
+}
+footer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+footer button {
+    width: 100%;
+    height: 45px;
+    background-color: rgba(0, 0, 0, 0);
+    color: white;
+    font-size: 20px;
+    font-weight: bold;
+    border: none;
+    z-index: 2;
+    cursor: pointer;
+    outline: none;
+    transition: 300ms;
+}
+footer:hover button {
+    color: #111;
+}
+footer div {
+    width: 100%;
+    height: 0px;
+    background-color: #eee;
+    position: absolute;
+    bottom: 0px;
+    z-index: -1;
+    transition: 300ms;
+}
+footer:hover div {
+    height: 45px;
+}
